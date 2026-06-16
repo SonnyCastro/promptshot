@@ -2,7 +2,7 @@
   "name": "promptshot",
   "description": "Full-page screenshot to your coding agent. Path on your clipboard for Claude Code, Codex & Cursor.",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "wxt",
