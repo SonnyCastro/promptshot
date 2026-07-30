@@ -240,6 +240,10 @@ function spHideFixed() {
       const s = getComputedStyle(el);
       if ((s.position === 'fixed' || s.position === 'sticky') && el.style.visibility !== 'hidden') {
         el.dataset.spVis = el.style.visibility;
+        el.dataset.spTr = el.style.transition;
+        // A CSS `transition-all` rule would delay the visibility flip past the
+        // capture (visible→hidden stays visible until the transition ends).
+        el.style.transition = 'none';
         el.style.visibility = 'hidden';
       }
       if (el.shadowRoot) walk(el.shadowRoot);
@@ -253,7 +257,9 @@ function spRestore(sx: number, sy: number, prevSB: string) {
     root.querySelectorAll<HTMLElement>('*').forEach((el) => {
       if (el.dataset && el.dataset.spVis !== undefined) {
         el.style.visibility = el.dataset.spVis;
+        el.style.transition = el.dataset.spTr || '';
         delete el.dataset.spVis;
+        delete el.dataset.spTr;
       }
       if (el.shadowRoot) walk(el.shadowRoot);
     });
