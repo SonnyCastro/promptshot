@@ -78,15 +78,19 @@ async function captureFullPage(tabId: number, windowId: number): Promise<string>
     const y = steps[i];
     await browser.scripting.executeScript({ target: { tabId }, func: spScroll, args: [y] });
     await delay(i === 0 ? 260 : 200);
+    if (i > 0) {
+      // Hide after the scroll settles: navbars that are only styled fixed/sticky
+      // once the page is scrolled (via a scroll listener) don't compute as
+      // fixed/sticky at y=0, so a single pass at the top misses them.
+      await browser.scripting.executeScript({ target: { tabId }, func: spHideFixed });
+      await delay(80);
+    }
     const shot = await captureWithRetry(windowId);
     const bmp = await createImageBitmap(await (await fetch(shot)).blob());
     const destY = Math.round(y * dpr);
     const h = Math.min(bmp.height, ch - destY);
     ctx.drawImage(bmp, 0, 0, cw, h, 0, destY, cw, h);
     bmp.close();
-    if (i === 0 && steps.length > 1) {
-      await browser.scripting.executeScript({ target: { tabId }, func: spHideFixed });
-    }
   }
 
   await browser.scripting.executeScript({ target: { tabId }, func: spRestore, args: [sx, sy, prevSB] });
